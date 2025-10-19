@@ -12,6 +12,44 @@
 
 namespace r3
 {
+    class TrainOrder
+    {
+    private:
+        enum Action
+        {
+            kAccelerate,
+            kMaintainSpeed,
+            kBrake
+        };
+
+        Action m_action;
+
+    public:
+        // Constructors
+        constexpr TrainOrder() : m_action(kMaintainSpeed) {}
+        constexpr explicit TrainOrder(Action action) : m_action(action) {}
+
+        // Factory methods
+        static constexpr TrainOrder accelerate() { return TrainOrder(kAccelerate); }
+        static constexpr TrainOrder maintain_speed() { return TrainOrder(kMaintainSpeed); }
+        static constexpr TrainOrder brake() { return TrainOrder(kBrake); }
+
+        // Getters
+        constexpr Action get_action() const { return m_action; }
+
+        // Operators
+        constexpr bool operator==(const TrainOrder &other) const { return m_action == other.m_action; }
+        constexpr bool operator!=(const TrainOrder &other) const { return m_action != other.m_action; }
+
+        // Conversion to string
+        std::string to_string() const;
+
+        // Serialization
+        std::array<char, sizeof(Action)> to_buffer() const;
+
+        static std::expected<TrainOrder, SocketError> from_buffer(const std::array<char, sizeof(Action)> &data);
+    };
+
     // Error codes for socket operations
     enum class SocketError
     {
@@ -23,7 +61,8 @@ namespace r3
         kInvalidAddress,
         kSocketOptionFailed,
         kNotBound,
-        kAddressParseError
+        kAddressParseError,
+        kTrainOrderParseError
     };
 
     // Convert error code to string
@@ -115,5 +154,4 @@ namespace r3
         std::expected<void, SocketError> set_reuse_address(bool enable);
         std::expected<void, SocketError> set_timeout(int seconds, int microseconds = 0);
     };
-
 }
