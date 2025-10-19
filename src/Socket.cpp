@@ -107,12 +107,19 @@ UDPSocket::UDPSocket() : m_socket_fd(-1), m_is_bound(false)
 
 std::expected<UDPSocket, SocketError> UDPSocket::create()
 {
-    UDPSocket socket;
-    if (!socket.is_valid())
+    try
+    {
+        UDPSocket socket;
+        if (!socket.is_valid())
+        {
+            return std::unexpected(SocketError::kInvalidSocket);
+        }
+        return socket;
+    }
+    catch (const std::exception &)
     {
         return std::unexpected(SocketError::kInvalidSocket);
     }
-    return socket;
 }
 
 UDPSocket::~UDPSocket()
