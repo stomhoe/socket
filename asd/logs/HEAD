@@ -1,7 +1,0 @@
-0000000000000000000000000000000000000000 eb8be138c4afc52ab3130deb8fa111b3f883bacc Dariagan <seomasini@gmail.com> 1759911029 +0200	clone: from https://gitlab.com/cvar-upm/dadtr/2025/equipo-rojo/reto2.git
-eb8be138c4afc52ab3130deb8fa111b3f883bacc 7783dca4e6b298ba600a10ff54d921d9c211fa79 Dariagan <seomasini@gmail.com> 1759911113 +0200	commit: implementacion inicial
-7783dca4e6b298ba600a10ff54d921d9c211fa79 eb8be138c4afc52ab3130deb8fa111b3f883bacc Dariagan <seomasini@gmail.com> 1759911147 +0200	reset: moving to HEAD~
-eb8be138c4afc52ab3130deb8fa111b3f883bacc eb8be138c4afc52ab3130deb8fa111b3f883bacc Dariagan <seomasini@gmail.com> 1759911158 +0200	checkout: moving from main to impl-ini
-eb8be138c4afc52ab3130deb8fa111b3f883bacc eebf2d4a5c2409c8b78a44e2e982a3feb626f302 Dariagan <seomasini@gmail.com> 1759911171 +0200	commit: implementacion inicial
-eebf2d4a5c2409c8b78a44e2e982a3feb626f302 eebf2d4a5c2409c8b78a44e2e982a3feb626f302 Dariagan <seomasini@gmail.com> 1760871871 +0200	checkout: moving from impl-ini to reto3
-eebf2d4a5c2409c8b78a44e2e982a3feb626f302 bc3b332c19bc17f2ce2e2a265a7c4b7cf51578d6 Dariagan <seomasini@gmail.com> 1760877650 +0200	commit: e
