@@ -8,6 +8,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <sstream>
+#include "Socket.hpp"
 
 using namespace r3;
 
@@ -107,19 +108,12 @@ UDPSocket::UDPSocket() : m_socket_fd(-1), m_is_bound(false)
 
 std::expected<UDPSocket, SocketError> UDPSocket::create()
 {
-    try
-    {
-        UDPSocket socket;
-        if (!socket.is_valid())
-        {
-            return std::unexpected(SocketError::kInvalidSocket);
-        }
-        return socket;
-    }
-    catch (const std::exception &)
+    UDPSocket socket;
+    if (!socket.is_valid())
     {
         return std::unexpected(SocketError::kInvalidSocket);
     }
+    return socket;
 }
 
 UDPSocket::~UDPSocket()
@@ -367,4 +361,17 @@ std::expected<void, SocketError> UDPSocket::set_timeout(int seconds, int microse
         return std::unexpected(SocketError::kSocketOptionFailed);
     }
     return {};
+}
+
+std::expected<TrainOrder, SocketError> r3::TrainOrder::from_buffer(const std::array<char, sizeof(Action)> &data)
+{
+    if (data.size() < sizeof(Action))
+    {
+        return std::unexpected(SocketError::kTrainOrderParseError);
+    }
+
+    Action action;
+    std::memcpy(&action, data.data(), sizeof(Action));
+
+    return TrainOrder(action);
 }
