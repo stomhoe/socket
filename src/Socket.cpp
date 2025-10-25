@@ -12,6 +12,16 @@
 
 using namespace r3;
 
+TrainOrder::TrainOrder(const std::string &action_str)
+{
+    if (action_str == "a")
+        m_action = kAccelerate;
+    else if (action_str == "b")
+        m_action = kBrake;
+    else
+        m_action = kMaintainSpeed; // Default or handle error as needed
+}
+
 // Error code to string conversion
 std::string r3::to_string(SocketError error)
 {
@@ -167,41 +177,6 @@ std::expected<void, SocketError> UDPSocket::bind(const IPv4Address &address, uin
     return {};
 }
 
-std::expected<void, SocketError> UDPSocket::connect(const IPv4Address &address, uint16_t port)
-{
-    if (!is_valid())
-    {
-        return std::unexpected(SocketError::kInvalidSocket);
-    }
-
-    m_remote_addr.sin_family = AF_INET;
-    m_remote_addr.sin_port = htons(port);
-    m_remote_addr.sin_addr.s_addr = htonl(address.to_uint32());
-
-    // For UDP, connect() sets the default destination
-    if (::connect(m_socket_fd, (struct sockaddr *)&m_remote_addr, sizeof(m_remote_addr)) == -1)
-    {
-        return std::unexpected(SocketError::kConnectFailed);
-    }
-
-    return {};
-}
-
-std::expected<ssize_t, SocketError> UDPSocket::send(const void *data, size_t size)
-{
-    if (!is_valid())
-    {
-        return std::unexpected(SocketError::kInvalidSocket);
-    }
-
-    ssize_t result = ::send(m_socket_fd, data, size, 0);
-    if (result == -1)
-    {
-        return std::unexpected(SocketError::kSendFailed);
-    }
-    return result;
-}
-
 std::expected<ssize_t, SocketError> UDPSocket::send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port)
 {
     if (!is_valid())
@@ -219,21 +194,6 @@ std::expected<ssize_t, SocketError> UDPSocket::send_to(const void *data, size_t 
     if (result == -1)
     {
         return std::unexpected(SocketError::kSendFailed);
-    }
-    return result;
-}
-
-std::expected<ssize_t, SocketError> UDPSocket::receive(void *buffer, size_t size)
-{
-    if (!is_valid())
-    {
-        return std::unexpected(SocketError::kInvalidSocket);
-    }
-
-    ssize_t result = recv(m_socket_fd, buffer, size, 0);
-    if (result == -1)
-    {
-        return std::unexpected(SocketError::kReceiveFailed);
     }
     return result;
 }

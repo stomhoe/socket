@@ -28,6 +28,7 @@ namespace r3
         // Constructors
         constexpr TrainOrder() : m_action(kMaintainSpeed) {}
         constexpr explicit TrainOrder(Action action) : m_action(action) {}
+        explicit TrainOrder(const std::string &action_str);
 
         // Factory methods
         static constexpr TrainOrder accelerate() { return TrainOrder(kAccelerate); }
@@ -123,12 +124,8 @@ namespace r3
 
         // Socket operations
         std::expected<void, SocketError> bind(const IPv4Address &address, uint16_t port);
-        std::expected<void, SocketError> connect(const IPv4Address &address, uint16_t port);
-
         // Data transmission
-        std::expected<ssize_t, SocketError> send(const void *data, size_t size);
         std::expected<ssize_t, SocketError> send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port);
-        std::expected<ssize_t, SocketError> receive(void *buffer, size_t size);
 
         struct ReceiveFromResult
         {
