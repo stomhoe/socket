@@ -173,7 +173,7 @@ std::expected<ssize_t, SocketError> r3::UDPSocket::send_order_to(const TrainOrde
     return send_to(&order, sizeof(TrainOrder), address, port);
 }
 
-std::expected<ssize_t, SocketError> r3::UDPSocket::send_visualization_data(const TrainVisualizationData data, const IPv4Address &address, uint16_t port)
+std::expected<ssize_t, SocketError> r3::UDPSocket::send_visualization_data_to(const TrainVisualizationData data, const IPv4Address &address, uint16_t port)
 {
 
     return send_to(&data, sizeof(TrainVisualizationData), address, port);

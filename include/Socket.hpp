@@ -133,7 +133,7 @@ namespace r3
         std::expected<void, SocketError> bind(const IPv4Address &address, uint16_t port);
         // Data transmission
         std::expected<ssize_t, SocketError> send_order_to(const TrainOrder order, const IPv4Address &address, uint16_t port);
-        std::expected<ssize_t, SocketError> send_visualization_data(const TrainVisualizationData data, const IPv4Address &address, uint16_t port);
+        std::expected<ssize_t, SocketError> send_visualization_data_to(const TrainVisualizationData data, const IPv4Address &address, uint16_t port);
         std::expected<ssize_t, SocketError> send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port);
         struct ReceiveVisualizationDataResult
         {
