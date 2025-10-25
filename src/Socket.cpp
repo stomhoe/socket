@@ -95,15 +95,9 @@ uint32_t IPv4Address::to_uint32() const
            (static_cast<uint32_t>(octets[3]) << 24);
 }
 
-bool IPv4Address::operator==(const IPv4Address &other) const
-{
-    return octets == other.octets;
-}
+bool IPv4Address::operator==(const IPv4Address &other) const { return octets == other.octets; }
 
-bool IPv4Address::operator!=(const IPv4Address &other) const
-{
-    return !(*this == other);
-}
+bool IPv4Address::operator!=(const IPv4Address &other) const { return !(*this == other); }
 
 // UDPSocket Implementation
 
@@ -126,10 +120,7 @@ std::expected<UDPSocket, SocketError> UDPSocket::create()
     return socket;
 }
 
-UDPSocket::~UDPSocket()
-{
-    close();
-}
+UDPSocket::~UDPSocket() { close(); }
 
 UDPSocket::UDPSocket(UDPSocket &&other) noexcept
     : m_socket_fd(other.m_socket_fd),
@@ -234,15 +225,9 @@ void UDPSocket::close()
     }
 }
 
-bool UDPSocket::is_valid() const
-{
-    return m_socket_fd != -1;
-}
+bool UDPSocket::is_valid() const { return m_socket_fd != -1; }
 
-int UDPSocket::get_fd() const
-{
-    return m_socket_fd;
-}
+int UDPSocket::get_fd() const { return m_socket_fd; }
 
 std::expected<IPv4Address, SocketError> UDPSocket::get_local_address() const
 {
