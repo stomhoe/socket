@@ -170,7 +170,13 @@ std::expected<void, SocketError> UDPSocket::bind(const IPv4Address &address, uin
 
 std::expected<ssize_t, SocketError> r3::UDPSocket::send_order_to(const TrainOrder order, const IPv4Address &address, uint16_t port)
 {
-    return send_to(order.to_buffer().data(), order.to_buffer().size(), address, port);
+    return send_to(&order, sizeof(TrainOrder), address, port);
+}
+
+std::expected<ssize_t, SocketError> r3::UDPSocket::send_visualization_data(const TrainVisualizationData data, const IPv4Address &address, uint16_t port)
+{
+
+    return send_to(&data, sizeof(TrainVisualizationData), address, port);
 }
 
 std::expected<ssize_t, SocketError> UDPSocket::send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port)
@@ -220,14 +226,40 @@ std::expected<UDPSocket::ReceiveFromResult, SocketError> UDPSocket::receive_from
     return result;
 }
 
-std::expected<UDPSocket::ReceiveFromResult, SocketError> UDPSocket::receive_order_from(std::array<char, sizeof(TrainOrder)> &data)
+std::expected<UDPSocket::ReceiveOrderResult, SocketError> UDPSocket::receive_order_from(TrainOrder &order)
 {
-    auto result = receive_from(data.data(), data.size());
+    auto result = receive_from(&order, sizeof(TrainOrder));
     if (!result.has_value())
     {
         return std::unexpected(result.error());
     }
-    return result.value();
+    if (result->bytes_received != sizeof(TrainOrder))
+    {
+        return std::unexpected(SocketError::kTrainOrderParseError);
+    }
+
+    ReceiveOrderResult order_result;
+    order_result.order = order;
+    order_result.sender_address = result->sender_address;
+
+    return order_result;
+}
+
+std::expected<UDPSocket::ReceiveVisualizationDataResult, SocketError> UDPSocket::receive_visualization_data(TrainVisualizationData &data)
+{
+    auto result = receive_from(&data, sizeof(TrainVisualizationData));
+    if (!result.has_value())
+    {
+        return std::unexpected(result.error());
+    }
+    if (result->bytes_received != sizeof(TrainVisualizationData))
+    {
+        return std::unexpected(SocketError::kTrainOrderParseError);
+    }
+
+    ReceiveVisualizationDataResult visualization_result(data, result->sender_address);
+
+    return visualization_result;
 }
 
 void UDPSocket::close()
@@ -323,23 +355,17 @@ std::expected<void, SocketError> UDPSocket::set_timeout(int seconds, int microse
     return {};
 }
 
-std::array<char, sizeof(TrainOrder::Action)> r3::TrainOrder::to_buffer() const
+std::string TrainOrder::to_string() const
 {
-    std::array<char, sizeof(Action)> buffer;
-    std::memcpy(buffer.data(), &m_action, sizeof(Action));
-    return buffer;
-}
-
-std::expected<TrainOrder, SocketError>
-r3::TrainOrder::from_buffer(const std::array<char, sizeof(Action)> &data)
-{
-    if (data.size() < sizeof(Action))
+    switch (m_action)
     {
-        return std::unexpected(SocketError::kTrainOrderParseError);
+    case kAccelerate:
+        return "a";
+    case kMaintainSpeed:
+        return "m";
+    case kBrake:
+        return "b";
+    default:
+        return "unknown";
     }
-
-    Action action;
-    std::memcpy(&action, data.data(), sizeof(Action));
-
-    return TrainOrder(action);
 }

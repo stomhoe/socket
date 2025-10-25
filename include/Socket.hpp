@@ -28,13 +28,16 @@ namespace r3
 
     class TrainOrder
     {
-    public:
+    private:
         enum Action
         {
             kAccelerate,
             kMaintainSpeed,
             kBrake
         };
+        Action m_action;
+
+    public:
         // Constructors
         constexpr TrainOrder() : m_action(kMaintainSpeed) {}
         constexpr explicit TrainOrder(Action action) : m_action(action) {}
@@ -45,6 +48,10 @@ namespace r3
         static constexpr TrainOrder maintain_speed() { return TrainOrder(kMaintainSpeed); }
         static constexpr TrainOrder brake() { return TrainOrder(kBrake); }
 
+        bool is_accelerate() const { return m_action == kAccelerate; }
+        bool is_maintain_speed() const { return m_action == kMaintainSpeed; }
+        bool is_brake() const { return m_action == kBrake; }
+
         // Getters
         constexpr Action get_action() const { return m_action; }
 
@@ -54,14 +61,16 @@ namespace r3
 
         // Conversion to string
         std::string to_string() const;
+    };
 
-        // Serialization
-        std::array<char, sizeof(Action)> to_buffer() const;
-
-        static std::expected<TrainOrder, SocketError> from_buffer(const std::array<char, sizeof(Action)> &data);
-
-    private:
-        Action m_action;
+    class TrainVisualizationData
+    {
+    public:
+        TrainVisualizationData(float position, float speed, float acc_time)
+            : position_(position), speed_(speed), acc_time_(acc_time) {}
+        const float position_;
+        const float speed_;
+        const float acc_time_;
     };
 
     // Convert error code to string
@@ -124,7 +133,23 @@ namespace r3
         std::expected<void, SocketError> bind(const IPv4Address &address, uint16_t port);
         // Data transmission
         std::expected<ssize_t, SocketError> send_order_to(const TrainOrder order, const IPv4Address &address, uint16_t port);
+        std::expected<ssize_t, SocketError> send_visualization_data(const TrainVisualizationData data, const IPv4Address &address, uint16_t port);
         std::expected<ssize_t, SocketError> send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port);
+        struct ReceiveVisualizationDataResult
+        {
+            const TrainVisualizationData data;
+            const IPv4Address sender_address;
+
+            // Add a constructor for easy initialization
+            ReceiveVisualizationDataResult(const TrainVisualizationData &d, const IPv4Address &addr)
+                : data(d), sender_address(addr) {}
+        };
+
+        struct ReceiveOrderResult
+        {
+            TrainOrder order;
+            IPv4Address sender_address;
+        };
 
         struct ReceiveFromResult
         {
@@ -133,7 +158,8 @@ namespace r3
             uint16_t sender_port;
         };
         std::expected<ReceiveFromResult, SocketError> receive_from(void *buffer, size_t size);
-        std::expected<ReceiveFromResult, SocketError> receive_order_from(std::array<char, sizeof(TrainOrder)> &data);
+        std::expected<ReceiveOrderResult, SocketError> receive_order_from(TrainOrder &order);
+        std::expected<UDPSocket::ReceiveVisualizationDataResult, SocketError> receive_visualization_data(TrainVisualizationData &data);
 
         // Socket management
         void close();
@@ -151,4 +177,4 @@ namespace r3
         std::expected<void, SocketError> set_reuse_address(bool enable);
         std::expected<void, SocketError> set_timeout(int seconds, int microseconds = 0);
     };
-}
+} // namespace r3
