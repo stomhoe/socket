@@ -18,12 +18,12 @@ else()
 endif()
 
 # Create static library for UDP Socket
-add_library(udp_socket_lib STATIC
+add_library(_udp_socket STATIC
     src/Socket.cpp
 )
 
 # Include directory for the library
-target_include_directories(udp_socket_lib
+target_include_directories(_udp_socket
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include
 )
@@ -36,7 +36,7 @@ add_executable(${PROJECT_NAME}
 # Link the static library to the main executable
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
-        udp_socket_lib
+        _udp_socket
 )
 
 # Include directory for the executable
@@ -47,5 +47,5 @@ target_include_directories(${PROJECT_NAME}
 
 # Installation
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
-install(TARGETS udp_socket_lib DESTINATION lib)
+install(TARGETS _udp_socket DESTINATION lib)
 install(FILES include/Socket.hpp DESTINATION include)
