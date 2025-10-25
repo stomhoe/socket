@@ -12,6 +12,20 @@
 
 namespace r3
 {
+    enum class SocketError
+    {
+        kInvalidSocket,
+        kBindFailed,
+        kConnectFailed,
+        kSendFailed,
+        kReceiveFailed,
+        kInvalidAddress,
+        kSocketOptionFailed,
+        kNotBound,
+        kAddressParseError,
+        kTrainOrderParseError
+    };
+
     class TrainOrder
     {
     private:
@@ -49,21 +63,6 @@ namespace r3
         std::array<char, sizeof(Action)> to_buffer() const;
 
         static std::expected<TrainOrder, SocketError> from_buffer(const std::array<char, sizeof(Action)> &data);
-    };
-
-    // Error codes for socket operations
-    enum class SocketError
-    {
-        kInvalidSocket,
-        kBindFailed,
-        kConnectFailed,
-        kSendFailed,
-        kReceiveFailed,
-        kInvalidAddress,
-        kSocketOptionFailed,
-        kNotBound,
-        kAddressParseError,
-        kTrainOrderParseError
     };
 
     // Convert error code to string
