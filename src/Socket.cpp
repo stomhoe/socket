@@ -168,6 +168,11 @@ std::expected<void, SocketError> UDPSocket::bind(const IPv4Address &address, uin
     return {};
 }
 
+std::expected<ssize_t, SocketError> r3::UDPSocket::send_order_to(const TrainOrder order, const IPv4Address &address, uint16_t port)
+{
+    return send_to(order.to_buffer().data(), order.to_buffer().size(), address, port);
+}
+
 std::expected<ssize_t, SocketError> UDPSocket::send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port)
 {
     if (!is_valid())
@@ -213,6 +218,16 @@ std::expected<UDPSocket::ReceiveFromResult, SocketError> UDPSocket::receive_from
     result.sender_port = ntohs(sender_addr.sin_port);
 
     return result;
+}
+
+std::expected<UDPSocket::ReceiveFromResult, SocketError> UDPSocket::receive_order_from(std::array<char, sizeof(TrainOrder)> &data)
+{
+    auto result = receive_from(data.data(), data.size());
+    if (!result.has_value())
+    {
+        return std::unexpected(result.error());
+    }
+    return result.value();
 }
 
 void UDPSocket::close()
@@ -308,7 +323,15 @@ std::expected<void, SocketError> UDPSocket::set_timeout(int seconds, int microse
     return {};
 }
 
-std::expected<TrainOrder, SocketError> r3::TrainOrder::from_buffer(const std::array<char, sizeof(Action)> &data)
+std::array<char, sizeof(TrainOrder::Action)> r3::TrainOrder::to_buffer() const
+{
+    std::array<char, sizeof(Action)> buffer;
+    std::memcpy(buffer.data(), &m_action, sizeof(Action));
+    return buffer;
+}
+
+std::expected<TrainOrder, SocketError>
+r3::TrainOrder::from_buffer(const std::array<char, sizeof(Action)> &data)
 {
     if (data.size() < sizeof(Action))
     {

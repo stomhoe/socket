@@ -28,17 +28,13 @@ namespace r3
 
     class TrainOrder
     {
-    private:
+    public:
         enum Action
         {
             kAccelerate,
             kMaintainSpeed,
             kBrake
         };
-
-        Action m_action;
-
-    public:
         // Constructors
         constexpr TrainOrder() : m_action(kMaintainSpeed) {}
         constexpr explicit TrainOrder(Action action) : m_action(action) {}
@@ -63,6 +59,9 @@ namespace r3
         std::array<char, sizeof(Action)> to_buffer() const;
 
         static std::expected<TrainOrder, SocketError> from_buffer(const std::array<char, sizeof(Action)> &data);
+
+    private:
+        Action m_action;
     };
 
     // Convert error code to string
@@ -124,6 +123,7 @@ namespace r3
         // Socket operations
         std::expected<void, SocketError> bind(const IPv4Address &address, uint16_t port);
         // Data transmission
+        std::expected<ssize_t, SocketError> send_order_to(const TrainOrder order, const IPv4Address &address, uint16_t port);
         std::expected<ssize_t, SocketError> send_to(const void *data, size_t size, const IPv4Address &address, uint16_t port);
 
         struct ReceiveFromResult
@@ -133,6 +133,7 @@ namespace r3
             uint16_t sender_port;
         };
         std::expected<ReceiveFromResult, SocketError> receive_from(void *buffer, size_t size);
+        std::expected<ReceiveFromResult, SocketError> receive_order_from(std::array<char, sizeof(TrainOrder)> &data);
 
         // Socket management
         void close();
